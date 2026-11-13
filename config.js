@@ -1,8 +1,8 @@
 // Edite estos textos para su urbanización.
 window.CONFIG = {
-  urbanizacion: "Nombre de la urbanización",
-  etapa: "Etapa 1",
+  urbanizacion: "VILLA BONITA",
+  etapa: "Etapa 15",
   // Hora desde la que se aplica el control nocturno (formato 24 h)
-  horaInicio: 21,
+  horaInicio: 18,
   horaFin: 6
 };
