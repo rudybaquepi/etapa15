@@ -1,6 +1,7 @@
 placa,propietario,casa,vehiculo,nota,estado
-GAB-1234,EJEMPLO Propietario 1,Mz 3 · Villa 12,Chevrolet Sail gris,,activo
-GSK-5821,EJEMPLO Propietario 2,Mz 1 · Villa 04,Kia Rio blanco,,activo
-GTR-0457,EJEMPLO Propietario 3,Mz 5 · Villa 21,Toyota Hilux negra,Segundo vehículo,activo
-GM-418K,EJEMPLO Propietario 4,Mz 2 · Villa 09,Moto Yamaha azul,,activo
-GXY-2290,EJEMPLO Propietario 5,Mz 4 · Villa 17,Hyundai Accent rojo,Vehículo vendido,inactivo
+"GAB-1234","EJEMPLO Propietario 1","Mz 3 · Villa 12","Chevrolet Sail gris","","activo"
+"GM-418K","EJEMPLO Propietario 4","Mz 2 · Villa 09","Moto Yamaha azul","","activo"
+"GSG-6037","RUDY OMAR BAQUE PILAY","MZ 5448 VILLA 39","JETOUR X70 ROJO","","activo"
+"GSK-5821","EJEMPLO Propietario 2","Mz 1 · Villa 04","Kia Rio blanco","","activo"
+"GTR-0457","EJEMPLO Propietario 3","Mz 5 · Villa 21","Toyota Hilux negra","Segundo vehículo","activo"
+"GXY-2290","EJEMPLO Propietario 5","Mz 4 · Villa 17","Hyundai Accent rojo","Vehículo vendido","inactivo"
