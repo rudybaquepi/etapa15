@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function perfil() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+    function activo() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && perfil().activo == true;
+    }
+    function rol() { return perfil().role; }
+
+    // Cuentas: cada persona lee la suya; el administrador lee y escribe todas.
+    match /usuarios/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || (activo() && rol() == 'admin'));
+      allow write: if activo() && rol() == 'admin';
+    }
+
+    // Visitas anunciadas por los propietarios.
+    match /visitas/{id} {
+      allow read: if activo() && (
+        rol() == 'admin' || rol() == 'guardia' ||
+        (rol() == 'propietario' && resource.data.propietarioUid == request.auth.uid));
+
+      allow create: if activo() && rol() == 'propietario'
+        && request.resource.data.keys().hasOnly(['casa', 'propietarioUid', 'propietarioNombre', 'visitante', 'placa', 'tipo', 'nota', 'esperadaPara', 'estado', 'creada'])
+        && request.resource.data.propietarioUid == request.auth.uid
+        && request.resource.data.casa == perfil().casa
+        && request.resource.data.estado == 'esperada'
+        && request.resource.data.creada == request.time
+        && request.resource.data.visitante is string
+        && request.resource.data.visitante.size() > 0 && request.resource.data.visitante.size() <= 80
+        && request.resource.data.placa is string && request.resource.data.placa.matches('^[A-Z0-9]{0,8}$')
+        && request.resource.data.tipo in ['visita', 'domicilio', 'servicio', 'otro']
+        && request.resource.data.nota is string && request.resource.data.nota.size() <= 200
+        && request.resource.data.esperadaPara is number;
+
+      allow update: if activo() && resource.data.estado == 'esperada' && (
+        // El propietario solo puede cancelar su propia visita.
+        (rol() == 'propietario' && resource.data.propietarioUid == request.auth.uid
+          && request.resource.data.estado == 'cancelada'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'actualizada']))
+        ||
+        // El guardia (o el administrador) solo puede marcar llegó o rechazada.
+        ((rol() == 'guardia' || rol() == 'admin')
+          && request.resource.data.estado in ['llego', 'rechazada']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'actualizada', 'atendidoPor']))
+      );
+
+      allow delete: if activo() && rol() == 'admin';
+    }
+  }
+}
