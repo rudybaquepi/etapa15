@@ -45,8 +45,8 @@
     if (c === 'auth/operation-not-allowed') return 'Falta activar el acceso por Correo/Contraseña en Firebase.';
     if (c === 'auth/email-already-in-use') return 'Ese usuario ya existe.';
     if (c === 'sinacceso') return 'Esta cuenta no tiene permiso para entrar aquí o está desactivada.';
-    if (c === 'permission-denied') return 'Sin permiso para esta acción. Cierre sesión y vuelva a entrar.';
-    return 'Ocurrió un error. Intente de nuevo.';
+    if (c === 'permission-denied') return 'Sin permiso para leer o guardar datos. Revise que las reglas de Firestore estén publicadas y que la cuenta exista en la colección usuarios.';
+    return 'Ocurrió un error' + (c ? ' (' + c + ')' : '') + '. Intente de nuevo.';
   }
 
   // Entra y comprueba que la cuenta exista en "usuarios", esté activa y tenga uno de los roles permitidos.
@@ -68,12 +68,20 @@
       return p;
     });
   }
-  // Avisa con el perfil (o null) cada vez que cambia la sesión.
+  // Avisa con el perfil (o null) cada vez que cambia la sesión. El tercer dato es el motivo si se rechaza.
+  // Solo cierra la sesión si la cuenta no tiene acceso; ante fallos de red o permisos reintenta y muestra el error.
   function watch(roles, cb) {
     return init().then(function (ctx) {
       ctx.auth.onAuthStateChanged(function (u) {
         if (!u) return cb(null, ctx);
-        profileOf(ctx, u.uid, roles).then(function (p) { cb(p, ctx); }, function () { ctx.auth.signOut(); cb(null, ctx); });
+        var tries = 0;
+        (function go() {
+          profileOf(ctx, u.uid, roles).then(function (p) { cb(p, ctx); }, function (e) {
+            if (e && e.code === 'sinacceso') { ctx.auth.signOut(); return cb(null, ctx, e); }
+            if (tries++ < 2) return setTimeout(go, 800);
+            cb(null, ctx, e);
+          });
+        })();
       });
       return ctx;
     });

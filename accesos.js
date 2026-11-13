@@ -105,9 +105,9 @@
   function start() {
     if (!FB.ready) { $('#nofb').hidden = false; return; }
     $('#login').hidden = false;
-    FB.watch(['admin'], function (p, c) {
+    FB.watch(['admin'], function (p, c, why) {
       ctx = c; me = p;
-      if (p) { show(true); listen(); } else { if (unsub) { unsub(); unsub = null; } users = []; show(false); }
+      if (p) { show(true); listen(); } else { if (unsub) { unsub(); unsub = null; } users = []; show(false); if (why) { var er = $('#l-err'); er.textContent = FB.explain(why); er.hidden = false; } }
     }).catch(function (e) { var er = $('#l-err'); er.textContent = FB.explain(e); er.hidden = false; });
   }
 

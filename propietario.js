@@ -89,10 +89,10 @@
   function start() {
     if (!FB.ready) { $('#nofb').hidden = false; return; }
     show(false); $('#login').hidden = false;
-    FB.watch(['propietario'], function (p, c) {
+    FB.watch(['propietario'], function (p, c, why) {
       ctx = c; me = p;
       if (p) { $('#casa-line').textContent = 'Casa: ' + (p.casa || '—') + (p.nombre ? ' · ' + p.nombre : ''); show(true); listen(); }
-      else { if (unsub) { unsub(); unsub = null; } visits = []; show(false); }
+      else { if (unsub) { unsub(); unsub = null; } visits = []; show(false); if (why) { var er = $('#l-err'); er.textContent = FB.explain(why); er.hidden = false; } }
     }).catch(function (e) { var er = $('#l-err'); er.textContent = FB.explain(e); er.hidden = false; $('#login').hidden = false; });
   }
 

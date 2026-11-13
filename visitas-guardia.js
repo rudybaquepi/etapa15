@@ -11,7 +11,7 @@
   var TIPOS = { visita: 'Visita', domicilio: 'Domicilio', servicio: 'Servicio técnico', otro: 'Otro' };
   var VENCE = 12 * 3600000;
 
-  var me = null, ctx = null, unsub = null, visits = [], first = true, wake = null, audio = null;
+  var lastErr = '', me = null, ctx = null, unsub = null, visits = [], first = true, wake = null, audio = null;
 
   function pending(now) {
     now = now || Date.now();
@@ -77,7 +77,7 @@
         '<p class="muted">Entre con la cuenta de guardia para recibir los avisos de visitas.</p>' +
         '<div class="field"><label for="vl-user">Usuario</label><input id="vl-user" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="username"></div>' +
         '<div class="field"><label for="vl-pin">PIN</label><input id="vl-pin" type="password" inputmode="numeric" autocomplete="current-password"></div>' +
-        '<p class="err" id="vl-err" role="alert" hidden></p><button type="submit" class="btn primary" id="vl-go">Entrar</button></form>';
+        '<p class="err" id="vl-err" role="alert"' + (lastErr ? '' : ' hidden') + '>' + esc(lastErr) + '</p><button type="submit" class="btn primary" id="vl-go">Entrar</button></form>';
       setBadge(0); return;
     }
     var now = Date.now(), p = pending(now);
@@ -116,8 +116,8 @@
   function startWatch() {
     if (!FB.ready) { render(); return; }
     render();
-    FB.watch(['guardia', 'admin'], function (p, c) {
-      ctx = c; me = p;
+    FB.watch(['guardia', 'admin'], function (p, c, why) {
+      ctx = c; me = p; lastErr = why ? FB.explain(why) : '';
       if (p) { listen(); keepAwake(); } else { if (unsub) { unsub(); unsub = null; } visits = []; render(); }
     }).catch(function () { /* sin conexión: la consulta de placas sigue funcionando */ });
   }
